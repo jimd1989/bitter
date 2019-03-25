@@ -109,7 +109,12 @@ func serve(w http.ResponseWriter, r *http.Request) {
     // Only tweets as "https://twitter.com/user/status/id" are honored at the
     // moment. I'm not sure if there are more exotic arrangements that should
     // be accounted for.
-    id := strings.Split(u, "/")[5]
+    fields := strings.Split(u, "/")
+    if len(fields) < 6 {
+        fmt.Fprintln(w, "Invalid URL")
+        return
+    }
+    id := fields[5]
     client := &http.Client{}
     req, _ := http.NewRequest("GET", T_URL + id, nil)
     req.Header.Add("Authorization", TOKEN)
