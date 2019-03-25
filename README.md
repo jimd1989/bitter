@@ -11,6 +11,7 @@ You will need [Go](https://golang.org) to build bitter. You will also need a Twi
 The process:
 
 + edit `TOKEN` in `html.go`
++ if bitter is running behind something like proxy_pass on your server, you should also edit `<form action="/">` in `html.go` to the appropriate path
 + `make`
 + `make install` (may have to be root)
 + `make uninstall` (to remove)
