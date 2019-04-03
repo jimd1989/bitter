@@ -28,12 +28,18 @@ type User struct {
     ScreenName  string  `json:"screen_name"`
 }
 
+type Error struct {
+    Code        int     `json:"code"`
+    Message     string  `json:"message"`
+}
+
 type Tweet struct {
     CreatedAt           string          `json:"created_at"`
     DisplayTextRange    []int           `json:"display_text_range"`
     FullText            string          `json:"full_text"`
     Entities            Entities        `json:"extended_entities"`
     User                User            `json:"user"`
+    Errors              []Error         `json:"errors"`
 }
 
 func (t *Tweet) CheckMedia() {
@@ -61,6 +67,15 @@ func (t *Tweet) Print(w http.ResponseWriter) {
     fmt.Fprintln(w, "--")
     for _, m := range t.Entities.Media {
         fmt.Fprintln(w, m.Type, m.MediaURLHttps)
+    }
+}
+
+func (t *Tweet) PrintError(w http.ResponseWriter) {
+
+// Print out all error messages    
+
+    for _, e := range t.Errors {
+        fmt.Fprintln(w, e.Message)
     }
 }
 
@@ -121,6 +136,10 @@ func serve(w http.ResponseWriter, r *http.Request) {
     res, _ := client.Do(req)
     body, _ := ioutil.ReadAll(res.Body)
     json.Unmarshal(body, &t)
+    if len(t.Errors) != 0 {
+        t.PrintError(w)
+        return
+    }
     t.CheckMedia()
     if format == "json" {
         t.PrintJSON(w)
